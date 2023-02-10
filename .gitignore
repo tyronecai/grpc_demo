@@ -1,3 +1,5 @@
 .idea
 target
 */target
+server.crt
+server.key
