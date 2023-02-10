@@ -51,10 +51,12 @@ public class BookServiceClient {
 
     BookServiceGrpc.BookServiceStub stub = BookServiceGrpc.newStub(channel);
 
+    boolean needStop = false;
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    while (true) {
+    while (!needStop) {
       try {
-        System.out.println("Enter a action [addBook/getBook/searchBook/updateBook/processBook]:");
+        System.out.println(
+            "Enter a action [addBook|getBook|searchBook|updateBook|processBook|exit]:");
         String action = br.readLine();
         LOG.info("execute action {}", action);
         switch (action) {
@@ -72,6 +74,10 @@ public class BookServiceClient {
             break;
           case "processBook":
             processBook(stub);
+            break;
+          case "exit":
+            needStop = true;
+            LOG.info("exit client");
             break;
           default:
             LOG.warn("bad action {}", action);
@@ -98,7 +104,7 @@ public class BookServiceClient {
 
           @Override
           public void onError(Throwable throwable) {
-            LOG.info("addBook onError");
+            LOG.error("addBook onError", throwable);
           }
 
           @Override
@@ -122,7 +128,7 @@ public class BookServiceClient {
 
           @Override
           public void onError(Throwable throwable) {
-            LOG.info("getBook onError", throwable);
+            LOG.error("getBook onError", throwable);
           }
 
           @Override
@@ -146,7 +152,7 @@ public class BookServiceClient {
 
           @Override
           public void onError(Throwable throwable) {
-            LOG.info("searchBook onNext", throwable);
+            LOG.error("searchBook onNext", throwable);
           }
 
           @Override
@@ -170,7 +176,7 @@ public class BookServiceClient {
 
               @Override
               public void onError(Throwable throwable) {
-                LOG.info("updateBook onError");
+                LOG.error("updateBook onError", throwable);
               }
 
               @Override
@@ -198,7 +204,7 @@ public class BookServiceClient {
 
               @Override
               public void onError(Throwable throwable) {
-                LOG.info("processBook onError");
+                LOG.error("processBook onError", throwable);
               }
 
               @Override
