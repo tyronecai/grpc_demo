@@ -39,6 +39,8 @@ message Book {
   string name = 3;
   float price = 4;
   string author = 5;
+  // debug grpc cost
+  int64 timestamp = 100;
 }
 
 message BookSet {

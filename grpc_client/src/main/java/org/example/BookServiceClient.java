@@ -120,7 +120,13 @@ public class BookServiceClient {
   private static void addBook(BookServiceGrpc.BookServiceStub stub) throws InterruptedException {
     CountDownLatch countDownLatch = new CountDownLatch(1);
     stub.addBook(
-        Book.newBuilder().setPrice(99).setId("100").setName("java").setAuthor("javaboy").build(),
+        Book.newBuilder()
+            .setPrice(99)
+            .setId("100")
+            .setName("java")
+            .setAuthor("javaboy")
+            .setTimestamp(System.currentTimeMillis())
+            .build(),
         new StreamObserver<StringValue>() {
           @Override
           public void onNext(StringValue stringValue) {
@@ -210,8 +216,20 @@ public class BookServiceClient {
                 LOG.info("updateBook onCompleted");
               }
             });
-    request.onNext(Book.newBuilder().setId("1").setName("a").setAuthor("b").build());
-    request.onNext(Book.newBuilder().setId("2").setName("c").setAuthor("d").build());
+    request.onNext(
+        Book.newBuilder()
+            .setId("1")
+            .setName("a")
+            .setAuthor("b")
+            .setTimestamp(System.currentTimeMillis())
+            .build());
+    request.onNext(
+        Book.newBuilder()
+            .setId("2")
+            .setName("c")
+            .setAuthor("d")
+            .setTimestamp(System.currentTimeMillis())
+            .build());
     request.onCompleted();
     countDownLatch.await();
   }

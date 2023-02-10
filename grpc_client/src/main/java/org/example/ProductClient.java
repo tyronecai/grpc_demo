@@ -75,6 +75,7 @@ public class ProductClient {
             .setPrice(399.0f)
             .setName("TienChin项目")
             .setDescription("SpringBoot+Vue3实战视频")
+            .setTimestamp(System.currentTimeMillis())
             .build();
 
     ProductId productId = stub.addProduct(p);

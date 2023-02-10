@@ -71,7 +71,7 @@ public class BookServiceImpl extends BookServiceGrpc.BookServiceImplBase {
 
   @Override
   public void addBook(Book request, StreamObserver<StringValue> responseObserver) {
-    LOG.info("add book {}", request);
+    LOG.info("add book {}, cost {} ms", request, System.currentTimeMillis() - request.getTimestamp());
     bookMap.put(request.getId(), request);
     responseObserver.onNext(StringValue.newBuilder().setValue(request.getId()).build());
     responseObserver.onCompleted();
@@ -117,7 +117,7 @@ public class BookServiceImpl extends BookServiceGrpc.BookServiceImplBase {
     return new StreamObserver<Book>() {
       @Override
       public void onNext(Book book) {
-        LOG.info("updateBooks onNext {}", book);
+        LOG.info("updateBooks onNext {}, cost {} ms", book, System.currentTimeMillis() - book.getTimestamp());
         bookMap.put(book.getId(), book);
         sb.append(book.getId()).append(",");
       }

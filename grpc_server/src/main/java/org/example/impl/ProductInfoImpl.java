@@ -30,7 +30,8 @@ public class ProductInfoImpl extends ProductInfoGrpc.ProductInfoImplBase {
 
   @Override
   public void addProduct(Product request, StreamObserver<ProductId> responseObserver) {
-    LOG.info("add product {}", request);
+    long timestamp = request.getTimestamp();
+    LOG.info("add product {}, cost {} ms", request, System.currentTimeMillis() - timestamp);
     responseObserver.onNext(ProductId.newBuilder().setValue(request.getId()).build());
     responseObserver.onCompleted();
   }

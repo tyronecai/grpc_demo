@@ -31,9 +31,11 @@ service ProductInfo {
 
 message Product {
   string id = 1;
-  string name=2;
-  string description=3;
-  float price=4;
+  string name = 2;
+  string description = 3;
+  float price = 4;
+  // debug grpc cost
+  int64 timestamp = 5;
 }
 
 message ProductId {
