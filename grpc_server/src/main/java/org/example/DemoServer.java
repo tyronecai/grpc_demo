@@ -22,6 +22,10 @@ import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.grpc.netty.shaded.io.netty.handler.ssl.ClientAuth;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContext;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 import org.example.impl.BookServiceImpl;
 import org.example.impl.ProductInfoImpl;
 import org.slf4j.Logger;
@@ -34,14 +38,42 @@ import java.net.InetSocketAddress;
 // 代码来源 https://mp.weixin.qq.com/s/OyfU0tLm4f9t3nZxce-Ksw
 public class DemoServer {
   private static final Logger LOG = LoggerFactory.getLogger(DemoServer.class);
-  private static final String host = "127.0.0.1";
-  private static final int port = 50051;
+  private final String host;
+  private final int port;
   private Server server;
 
   public static void main(String[] args) throws Exception {
-    DemoServer server = new DemoServer();
+    String host;
+    int port;
+    try {
+      CommandLine commandLine = new DefaultParser().parse(createOptions(), args);
+      host = commandLine.getOptionValue("host", "127.0.0.1");
+      port = Integer.parseInt(commandLine.getOptionValue("port", "50051"));
+    } catch (Exception ex) {
+      LOG.error("parse args fail, {}", ex.getMessage());
+      LOG.error("Example: --host 127.0.0.1 --port 50011");
+      throw ex;
+    }
+
+    DemoServer server = new DemoServer(host, port);
     server.start();
     server.blockUntilShutdown();
+  }
+
+  private static Options createOptions() {
+    Options options = new Options();
+
+    options.addOption("help", "usage help");
+    options.addOption(
+        Option.builder().hasArg(true).longOpt("host").type(String.class).desc("host").build());
+    options.addOption(
+        Option.builder().hasArg(true).longOpt("port").type(Short.class).desc("port").build());
+    return options;
+  }
+
+  public DemoServer(String host, int port) {
+    this.host = host;
+    this.port = port;
   }
 
   // 使用命令生成证书
@@ -73,7 +105,7 @@ public class DemoServer {
             .build()
             .start();
 
-    LOG.info("server start on port {}", port);
+    LOG.info("server start on port {}:{}", host, port);
 
     Runtime.getRuntime().addShutdownHook(new Thread(DemoServer.this::stop));
   }

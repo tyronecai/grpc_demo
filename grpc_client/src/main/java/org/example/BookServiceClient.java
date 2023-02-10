@@ -24,6 +24,10 @@ import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContext;
 import io.grpc.netty.shaded.io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.grpc.stub.StreamObserver;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 import org.javaboy.grpc.demo.Book;
 import org.javaboy.grpc.demo.BookServiceGrpc;
 import org.javaboy.grpc.demo.BookSet;
@@ -38,14 +42,35 @@ import java.util.concurrent.CountDownLatch;
 public class BookServiceClient {
   private static final Logger LOG = LoggerFactory.getLogger(BookServiceClient.class);
 
-  private static final String host = "127.0.0.1";
-  private static final int port = 50051;
+  private static Options createOptions() {
+    Options options = new Options();
+
+    options.addOption("help", "usage help");
+    options.addOption(
+        Option.builder().hasArg(true).longOpt("host").type(String.class).desc("host").build());
+    options.addOption(
+        Option.builder().hasArg(true).longOpt("port").type(Short.class).desc("port").build());
+    return options;
+  }
 
   public static void main(String[] args) throws Exception {
+    String host;
+    int port;
+    try {
+      CommandLine commandLine = new DefaultParser().parse(createOptions(), args);
+      host = commandLine.getOptionValue("host", "127.0.0.1");
+      port = Integer.parseInt(commandLine.getOptionValue("port", "50051"));
+    } catch (Exception ex) {
+      LOG.error("parse args fail, {}", ex.getMessage());
+      LOG.error("Example: --host 127.0.0.1 --port 50011");
+      throw ex;
+    }
+
     // 忽略自签名证书的限制
     SslContext sslContext =
         GrpcSslContexts.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
 
+    LOG.info("will connect to server {}:{}", host, port);
     ManagedChannel channel =
         NettyChannelBuilder.forAddress(host, port).sslContext(sslContext).build();
 
