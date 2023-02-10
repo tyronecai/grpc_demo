@@ -38,6 +38,7 @@ public class ProductClient {
   private static final int port = 50051;
 
   public static void main(String[] args) throws SSLException {
+    // 忽略自签名证书的限制
     SslContext sslContext =
         GrpcSslContexts.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
 

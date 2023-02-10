@@ -38,7 +38,7 @@ public class DemoServer {
   private static final int port = 50051;
   private Server server;
 
-  public static void main(String[] args) throws IOException, InterruptedException {
+  public static void main(String[] args) throws Exception {
     DemoServer server = new DemoServer();
     server.start();
     server.blockUntilShutdown();
@@ -47,8 +47,21 @@ public class DemoServer {
   // 使用命令生成证书
   // openssl req -newkey rsa:2048 -nodes -keyout server.key -x509 -days 365 -out server.crt
   public void start() throws IOException {
+    File keyCertChainFile = new File("server.crt");
+    File keyFile = new File("server.key");
+
+    if (!keyCertChainFile.exists() || !keyFile.exists()) {
+      LOG.error("crt & key file not exit");
+      LOG.error(
+          "use command "
+              + "\"openssl req -newkey rsa:2048 -nodes -keyout server.key -x509 -days 365 -out server.crt\""
+              + " to generate");
+      throw new RuntimeException("bad crt & key file");
+    }
+
+    // 不强制client auth
     SslContext sslContext =
-        GrpcSslContexts.forServer(new File("server.crt"), new File("server.key"))
+        GrpcSslContexts.forServer(keyCertChainFile, keyFile)
             .clientAuth(ClientAuth.OPTIONAL)
             .build();
 

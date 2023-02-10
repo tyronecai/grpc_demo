@@ -42,6 +42,7 @@ public class BookServiceClient {
   private static final int port = 50051;
 
   public static void main(String[] args) throws Exception {
+    // 忽略自签名证书的限制
     SslContext sslContext =
         GrpcSslContexts.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
 
