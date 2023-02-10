@@ -50,29 +50,45 @@ public class BookServiceClient {
         Option.builder().hasArg(true).longOpt("host").type(String.class).desc("host").build());
     options.addOption(
         Option.builder().hasArg(true).longOpt("port").type(Short.class).desc("port").build());
+    options.addOption(
+        Option.builder()
+            .hasArg(true)
+            .longOpt("use_ssl")
+            .type(Boolean.class)
+            .desc("use ssl or not")
+            .build());
     return options;
   }
 
   public static void main(String[] args) throws Exception {
     String host;
     int port;
+    boolean useSSL;
     try {
       CommandLine commandLine = new DefaultParser().parse(createOptions(), args);
       host = commandLine.getOptionValue("host", "127.0.0.1");
       port = Integer.parseInt(commandLine.getOptionValue("port", "50051"));
+      useSSL = Boolean.parseBoolean(commandLine.getOptionValue("use_ssl", "false"));
     } catch (Exception ex) {
       LOG.error("parse args fail, {}", ex.getMessage());
-      LOG.error("Example: --host 127.0.0.1 --port 50011");
+      LOG.error("Example: --host 127.0.0.1 --port 50011 --use_ssl false");
       throw ex;
     }
 
-    // 忽略自签名证书的限制
-    SslContext sslContext =
-        GrpcSslContexts.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
+    LOG.info("will connect to server {}:{}, use ssl {}", host, port, useSSL);
 
-    LOG.info("will connect to server {}:{}", host, port);
-    ManagedChannel channel =
-        NettyChannelBuilder.forAddress(host, port).sslContext(sslContext).build();
+    NettyChannelBuilder builder = NettyChannelBuilder.forAddress(host, port);
+
+    if (useSSL) {
+      // 忽略自签名证书的限制
+      SslContext sslContext =
+          GrpcSslContexts.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
+      builder.sslContext(sslContext);
+    } else {
+      builder.usePlaintext();
+    }
+
+    ManagedChannel channel = builder.build();
 
     BookServiceGrpc.BookServiceStub stub = BookServiceGrpc.newStub(channel);
 

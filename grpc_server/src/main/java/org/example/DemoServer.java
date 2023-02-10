@@ -40,22 +40,25 @@ public class DemoServer {
   private static final Logger LOG = LoggerFactory.getLogger(DemoServer.class);
   private final String host;
   private final int port;
+  private final boolean useSSL;
   private Server server;
 
   public static void main(String[] args) throws Exception {
     String host;
     int port;
+    boolean useSSL;
     try {
       CommandLine commandLine = new DefaultParser().parse(createOptions(), args);
       host = commandLine.getOptionValue("host", "127.0.0.1");
       port = Integer.parseInt(commandLine.getOptionValue("port", "50051"));
+      useSSL = Boolean.parseBoolean(commandLine.getOptionValue("use_ssl", "false"));
     } catch (Exception ex) {
       LOG.error("parse args fail, {}", ex.getMessage());
-      LOG.error("Example: --host 127.0.0.1 --port 50011");
+      LOG.error("Example: --host 127.0.0.1 --port 50011 --use_ssl false");
       throw ex;
     }
 
-    DemoServer server = new DemoServer(host, port);
+    DemoServer server = new DemoServer(host, port, useSSL);
     server.start();
     server.blockUntilShutdown();
   }
@@ -68,44 +71,53 @@ public class DemoServer {
         Option.builder().hasArg(true).longOpt("host").type(String.class).desc("host").build());
     options.addOption(
         Option.builder().hasArg(true).longOpt("port").type(Short.class).desc("port").build());
+    options.addOption(
+        Option.builder()
+            .hasArg(true)
+            .longOpt("use_ssl")
+            .type(Boolean.class)
+            .desc("use ssl or not")
+            .build());
     return options;
   }
 
-  public DemoServer(String host, int port) {
+  public DemoServer(String host, int port, boolean useSSL) {
     this.host = host;
     this.port = port;
+    this.useSSL = useSSL;
   }
 
   // 使用命令生成证书
   // openssl req -newkey rsa:2048 -nodes -keyout server.key -x509 -days 365 -out server.crt
   public void start() throws IOException {
-    File keyCertChainFile = new File("server.crt");
-    File keyFile = new File("server.key");
-
-    if (!keyCertChainFile.exists() || !keyFile.exists()) {
-      LOG.error("crt & key file not exit");
-      LOG.error(
-          "use command "
-              + "\"openssl req -newkey rsa:2048 -nodes -keyout server.key -x509 -days 365 -out server.crt\""
-              + " to generate");
-      throw new RuntimeException("bad crt & key file");
-    }
-
-    // 不强制client auth
-    SslContext sslContext =
-        GrpcSslContexts.forServer(keyCertChainFile, keyFile)
-            .clientAuth(ClientAuth.OPTIONAL)
-            .build();
-
-    server =
+    NettyServerBuilder builder =
         NettyServerBuilder.forAddress(new InetSocketAddress(host, port))
             .addService(new ProductInfoImpl())
-            .addService(new BookServiceImpl())
-            .sslContext(sslContext)
-            .build()
-            .start();
+            .addService(new BookServiceImpl());
 
-    LOG.info("server start on port {}:{}", host, port);
+    LOG.info("server start on port {}:{}, use ssl {}", host, port, useSSL);
+
+    if (useSSL) {
+      LOG.info("use ssl");
+      File keyCertChainFile = new File("server.crt");
+      File keyFile = new File("server.key");
+
+      if (!keyCertChainFile.exists() || !keyFile.exists()) {
+        LOG.error("crt & key file not exit");
+        LOG.error(
+            "use command "
+                + "\"openssl req -newkey rsa:2048 -nodes -keyout server.key -x509 -days 365 -out server.crt\""
+                + " to generate");
+        throw new RuntimeException("bad crt & key file");
+      }
+      // 不强制client auth
+      SslContext sslContext =
+          GrpcSslContexts.forServer(keyCertChainFile, keyFile)
+              .clientAuth(ClientAuth.OPTIONAL)
+              .build();
+      builder.sslContext(sslContext);
+    }
+    server = builder.build().start();
 
     Runtime.getRuntime().addShutdownHook(new Thread(DemoServer.this::stop));
   }
