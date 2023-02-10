@@ -22,6 +22,7 @@ import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.grpc.netty.shaded.io.netty.handler.ssl.ClientAuth;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContext;
+import org.example.impl.BookServiceImpl;
 import org.example.impl.ProductInfoImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,18 +55,14 @@ public class DemoServer {
     server =
         NettyServerBuilder.forAddress(new InetSocketAddress(host, port))
             .addService(new ProductInfoImpl())
+            .addService(new BookServiceImpl())
             .sslContext(sslContext)
             .build()
             .start();
 
     LOG.info("server start on port {}", port);
 
-    Runtime.getRuntime()
-        .addShutdownHook(
-            new Thread(
-                () -> {
-                  DemoServer.this.stop();
-                }));
+    Runtime.getRuntime().addShutdownHook(new Thread(DemoServer.this::stop));
   }
 
   private void stop() {
