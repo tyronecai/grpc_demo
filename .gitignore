@@ -3,3 +3,4 @@ target
 */target
 server.crt
 server.key
+*/dependency-reduced-pom.xml
