@@ -1,8 +1,8 @@
 # grpc_demo
 
-## 代码来源于:
-https://mp.weixin.qq.com/s/OyfU0tLm4f9t3nZxce-Ksw
-https://mp.weixin.qq.com/s/c-_D2RpLksIlYJDfaWOSkA
+## 代码来源于《江南一点雨》的文章:
+[一个简单的案例入门 gRPC](https://mp.weixin.qq.com/s/OyfU0tLm4f9t3nZxce-Ksw)
+[聊一聊 gRPC 的四种通信模式](https://mp.weixin.qq.com/s/c-_D2RpLksIlYJDfaWOSkA)
 
 并做了如下修改：
 1. 支持ssl自签名证书
