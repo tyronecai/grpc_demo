@@ -1,0 +1,49 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+// 代码来源 https://mp.weixin.qq.com/s/OyfU0tLm4f9t3nZxce-Ksw
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.javaboy.grpc.demo";
+option java_outer_classname = "BookServiceProto";
+import "google/protobuf/wrappers.proto";
+
+package book;
+
+service BookService {
+  rpc addBook(Book) returns (google.protobuf.StringValue);
+  rpc getBook(google.protobuf.StringValue) returns (Book);
+  rpc searchBooks(google.protobuf.StringValue) returns (stream Book);
+  rpc updateBooks(stream Book) returns (google.protobuf.StringValue);
+  rpc processBooks(stream google.protobuf.StringValue) returns (stream BookSet);
+}
+
+message Book {
+  string id = 1;
+  repeated string tags = 2;
+  string name = 3;
+  float price = 4;
+  string author = 5;
+  // debug grpc cost
+  int64 timestamp = 100;
+}
+
+message BookSet {
+  string id = 1;
+  repeated Book bookList = 3;
+}
