@@ -24,25 +24,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // 代码来源 《聊一聊 gRPC 中的拦截器》 https://my.oschina.net/lenve/blog/7819695
-public class BookServiceCall<Req, Rsp>
-        extends ForwardingServerCall.SimpleForwardingServerCall<Req, Rsp> {
+public class BookServiceCall<ReqT, RespT>
+        extends ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT> {
     private static final Logger LOG = LoggerFactory.getLogger(BookServiceCall.class);
-    protected BookServiceCall(ServerCall<Req, Rsp> delegate) {
+    protected BookServiceCall(ServerCall<ReqT, RespT> delegate) {
         super(delegate);
     }
 
     @Override
-    public ServerCall<Req, Rsp> delegate() {
+    public ServerCall<ReqT, RespT> delegate() {
         return super.delegate();
     }
 
     @Override
-    public MethodDescriptor<Req, Rsp> getMethodDescriptor() {
+    public MethodDescriptor<ReqT, RespT> getMethodDescriptor() {
         return super.getMethodDescriptor();
     }
 
     @Override
-    public void sendMessage(Rsp message) {
+    public void sendMessage(RespT message) {
         LOG.info("这是服务端返回给客户端的消息：{}", message);
         super.sendMessage(message);
     }

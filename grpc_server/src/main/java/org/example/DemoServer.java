@@ -17,7 +17,8 @@
 
 package org.example;
 
-import io.grpc.*;
+import io.grpc.Server;
+import io.grpc.ServerInterceptors;
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.grpc.netty.shaded.io.netty.handler.ssl.ClientAuth;
@@ -34,8 +35,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-
-import static io.grpc.Metadata.ASCII_STRING_MARSHALLER;
 
 // 代码来源 https://mp.weixin.qq.com/s/OyfU0tLm4f9t3nZxce-Ksw
 public class DemoServer {
@@ -97,25 +96,7 @@ public class DemoServer {
             .addService(new ProductInfoImpl())
             .addService(new BookServiceImpl())
             .addService(
-                ServerInterceptors.intercept(
-                    new BookServiceImpl(),
-                    new ServerInterceptor() {
-                      @Override
-                      public <Req, Rsp> ServerCall.Listener<Req> interceptCall(
-                          ServerCall<Req, Rsp> call,
-                          Metadata headers,
-                          ServerCallHandler<Req, Rsp> next) {
-                        LOG.info("full method {}", call.getMethodDescriptor().getFullMethodName());
-                        for (String key : headers.keys()) {
-                          LOG.info(
-                              "header: {} => {}",
-                              key,
-                              headers.get(Metadata.Key.of(key, ASCII_STRING_MARSHALLER)));
-                        }
-                        return new BookServiceCallListener(
-                            next.startCall(new BookServiceCall(call), headers));
-                      }
-                    }));
+                ServerInterceptors.intercept(new BookServiceImpl(), new ServerInterceptorImpl()));
 
     LOG.info("server start on port {}:{}, use ssl {}", host, port, useSSL);
 

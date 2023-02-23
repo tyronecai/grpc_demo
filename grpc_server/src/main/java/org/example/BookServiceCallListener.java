@@ -23,22 +23,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // 代码来源 《聊一聊 gRPC 中的拦截器》 https://my.oschina.net/lenve/blog/7819695
-public class BookServiceCallListener<Req> extends ForwardingServerCallListener<Req> {
+public class BookServiceCallListener<ReqT> extends ForwardingServerCallListener<ReqT> {
     private static final Logger LOG = LoggerFactory.getLogger(BookServiceCallListener.class);
 
-    private final ServerCall.Listener<Req> delegate;
+    private final ServerCall.Listener<ReqT> delegate;
 
-    public BookServiceCallListener(ServerCall.Listener<Req> delegate) {
+    public BookServiceCallListener(ServerCall.Listener<ReqT> delegate) {
         this.delegate = delegate;
     }
 
     @Override
-    public ServerCall.Listener<Req> delegate() {
+    public ServerCall.Listener<ReqT> delegate() {
         return delegate;
     }
 
     @Override
-    public void onMessage(Req message) {
+    public void onMessage(ReqT message) {
         LOG.info("这是客户端发来的消息，可以在这里进行预处理：{}", message);
         super.onMessage(message);
     }
