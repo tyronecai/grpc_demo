@@ -92,15 +92,18 @@ public class DemoServer {
   // 使用命令生成证书
   // openssl req -newkey rsa:2048 -nodes -keyout server.key -x509 -days 365 -out server.crt
   public void start() throws IOException {
-    NettyServerBuilder builder =
-        NettyServerBuilder.forAddress(new InetSocketAddress(host, port))
-            .addService(
-                ServerInterceptors.intercept(new ProductInfoImpl(), new ServerInterceptorImpl()))
-            .addService(
-                ServerInterceptors.intercept(new BookServiceImpl(), new ServerInterceptorImpl()));
+    NettyServerBuilder builder = NettyServerBuilder.forAddress(new InetSocketAddress(host, port));
+    // https://my.oschina.net/lenve/blog/7819695
+    // 1. 服务端拦截器
+    // 服务端拦截器的作用有点像我们 Java 中的 Filter，服务端拦截器又可以继续细分为一元拦截器和流拦截器。
+    // 一元拦截器对应我们上篇文章中所讲的一元 RPC，也就是一次请求，一次响应这种情况。
+    // 流拦截器则对应我们上篇文章中所讲的服务端流 RPC、客户端流 RPC 以及双向流 RPC。
+    builder.addService(
+        ServerInterceptors.intercept(new ProductInfoImpl(), new ServerInterceptorImpl()));
+    builder.addService(
+        ServerInterceptors.intercept(new BookServiceImpl(), new ServerInterceptorImpl()));
 
     LOG.info("server start on port {}:{}, use ssl {}", host, port, useSSL);
-
     if (useSSL) {
       LOG.info("use ssl");
       File keyCertChainFile = new File("server.crt");

@@ -78,6 +78,10 @@ public class BookServiceClient {
     LOG.info("will connect to server {}:{}, use ssl {}", host, port, useSSL);
 
     NettyChannelBuilder builder = NettyChannelBuilder.forAddress(host, port);
+    // https://my.oschina.net/lenve/blog/7819695
+    // 2. 客户端拦截器
+    // 客户端拦截器就比较简单了，客户端拦截器可以将我们的请求拦截下来，例如我们如果想为所有请求添加统一的令牌 Token，那么就可以在这里来做，方式如下：
+    builder.intercept(new ClientInterceptorImpl());
 
     if (useSSL) {
       // 忽略自签名证书的限制
