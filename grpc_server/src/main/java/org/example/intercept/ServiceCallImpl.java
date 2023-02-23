@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package org.example;
+package org.example.intercept;
 
 import io.grpc.ForwardingServerCall;
 import io.grpc.MethodDescriptor;
@@ -24,10 +24,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // 代码来源 《聊一聊 gRPC 中的拦截器》 https://my.oschina.net/lenve/blog/7819695
-public class BookServiceCall<ReqT, RespT>
+public class ServiceCallImpl<ReqT, RespT>
         extends ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT> {
-    private static final Logger LOG = LoggerFactory.getLogger(BookServiceCall.class);
-    protected BookServiceCall(ServerCall<ReqT, RespT> delegate) {
+    private static final Logger LOG = LoggerFactory.getLogger(ServiceCallImpl.class);
+    protected ServiceCallImpl(ServerCall<ReqT, RespT> delegate) {
         super(delegate);
     }
 

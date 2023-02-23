@@ -29,6 +29,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.example.impl.BookServiceImpl;
 import org.example.impl.ProductInfoImpl;
+import org.example.intercept.ServerInterceptorImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,8 +94,8 @@ public class DemoServer {
   public void start() throws IOException {
     NettyServerBuilder builder =
         NettyServerBuilder.forAddress(new InetSocketAddress(host, port))
-            .addService(new ProductInfoImpl())
-            .addService(new BookServiceImpl())
+            .addService(
+                ServerInterceptors.intercept(new ProductInfoImpl(), new ServerInterceptorImpl()))
             .addService(
                 ServerInterceptors.intercept(new BookServiceImpl(), new ServerInterceptorImpl()));
 

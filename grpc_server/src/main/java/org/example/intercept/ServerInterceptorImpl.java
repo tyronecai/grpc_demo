@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package org.example;
+package org.example.intercept;
 
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
@@ -47,6 +47,6 @@ public class ServerInterceptorImpl implements ServerInterceptor {
       sb.append("\n");
     }
     LOG.info("get request {}", sb);
-    return new BookServiceCallListener(next.startCall(new BookServiceCall(call), headers));
+    return new ServiceCallListenerImpl(next.startCall(new ServiceCallImpl(call), headers));
   }
 }
